@@ -3,11 +3,14 @@ package main
 import "fmt"
 
 func main() {
-	card := newCard()
+	cards := []string{"Ace of Diamonds", newCard()} //defining a new slice,
 
-	fmt.Println(card)
+	for i, card := range cards { //range is a special keyword that helps loop through the slice.
+		fmt.Println(i, card) //we used := bcoz during each iteration the old vars are thrown off.
+	}
+
 }
 
-func newCard() string { //defined the return type of the function
+func newCard() string {
 	return "Five of Diamonds"
 }
