@@ -1,14 +1,11 @@
 package main
 
-import "fmt"
-
 func main() {
-	cards := []string{"Ace of Diamonds", newCard()} //defining a new slice,
+	cards := deck{"Ace of Diamonds", newCard()} 	//deck in defined as a string slice type in deck.go
+	cards = append(cards, "Four of Spades")
 
-	for i, card := range cards { //range is a special keyword that helps loop through the slice.
-		fmt.Println(i, card) //we used := bcoz during each iteration the old vars are thrown off.
-	}
-
+	cards.print() 		//print method can be used on cards bcoz the receiver type for
+						//print method is deck
 }
 
 func newCard() string {
