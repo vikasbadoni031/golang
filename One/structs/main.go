@@ -1,16 +1,27 @@
+//main.go file
 package main
 
 import "fmt"
 
-type person struct { //defining a struct
+type contactInfo struct {
+	email   string
+	zipCode int
+}
+
+type person struct { 
 	firstName string
 	lastName  string
+	contact   contactInfo		//embedded struct
 }
 
 func main() {
-	var alex person //when u define a struct bit no values defined
-	alex.firstName = "Alex"
-	alex.lastName = "Anderson"
-	fmt.Println(alex)
-	fmt.Printf("%+v", alex)				//print fled name and its values
+	jim := person{
+		firstName: "Jim",
+		lastName: "party",
+		contact: contactInfo{			//initializing struct and embedded struct
+			email: "jim@gmail.com",
+			zipCode: 94000,
+		},
+	}
+	fmt.Printf("%+v", jim)
 }
