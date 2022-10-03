@@ -8,20 +8,31 @@ type contactInfo struct {
 	zipCode int
 }
 
-type person struct { 
+type person struct {
 	firstName string
 	lastName  string
-	contact   contactInfo		//embedded struct
+	contactInfo
 }
 
 func main() {
 	jim := person{
 		firstName: "Jim",
-		lastName: "party",
-		contact: contactInfo{			//initializing struct and embedded struct
-			email: "jim@gmail.com",
+		lastName:  "party",
+		contactInfo: contactInfo{
+			email:   "jim@gmail.com",
 			zipCode: 94000,
 		},
 	}
-	fmt.Printf("%+v", jim)
+	//jimPointer := &jim
+	//jimPointer.updateName("Jimmy")
+	jim.updateName("jimmy")     // another way to write above two lines, go auto turns the person to "pointer to person"
+	jim.print()
+}
+
+func (pointerToPerson *person) updateName(newFirstName string) {   //function receving a pointer arg
+	(*pointerToPerson).firstName = newFirstName
+}
+
+func (p person) print() {
+	fmt.Printf("%+v", p)
 }
