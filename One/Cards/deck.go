@@ -4,6 +4,7 @@ package main
 import (
 	"fmt"
 	"io/ioutil"
+	"os"
 	"strings"
 )
 
@@ -32,10 +33,20 @@ func (d deck) print() {
 	}
 }
 
-func (d deck) toString() string { 
+func (d deck) toString() string {
 	return strings.Join([]string(d), ",")
 }
 
-func (d deck) saveToFile(filename string) error {				//convert deck to byte and save to file using ioutils
+func (d deck) saveToFile(filename string) error {
 	return ioutil.WriteFile(filename, []byte(d.toString()), 0666)
+}
+
+func newDeckFromFile(filename string) deck {
+	bs, err := ioutil.ReadFile(filename) //here we are handling two return values from an standard library function.
+	if err != nil {                      // err will be nil in case everthing went fine else we need to do handle it.
+		fmt.Println("Error=", err)
+		os.Exit(1)
+	}
+	s := strings.Split(string(bs), ",")
+	return deck(s)
 }
