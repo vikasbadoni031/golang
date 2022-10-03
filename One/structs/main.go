@@ -8,7 +8,9 @@ type person struct { //defining a struct
 }
 
 func main() {
-	//alex := person{"Alex", "Anderson"}
-	alex := person{firstName: "Alex", lastName: "Anderson"} // creating an instance of the struct
+	var alex person //when u define a struct bit no values defined
+	alex.firstName = "Alex"
+	alex.lastName = "Anderson"
 	fmt.Println(alex)
+	fmt.Printf("%+v", alex)				//print fled name and its values
 }
