@@ -1,7 +1,10 @@
 //deck.go file
 package main
 
-import "fmt"
+import (
+	"fmt"
+	"strings"
+)
 
 type deck []string
 
@@ -18,12 +21,16 @@ func newDeck() deck {
 	return cards
 }
 
-func deal(d deck, handSize int) (deck, deck) {    		// two arguments
-	return d[:handSize], d[handSize:]					//returning two objects of type deck
+func deal(d deck, handSize int) (deck, deck) { 
+	return d[:handSize], d[handSize:] 
 }
 
 func (d deck) print() {
 	for i, card := range d {
 		fmt.Println(i, card)
 	}
+}
+
+func (d deck) toStrings() string {       			//converting from deck type to string
+	return strings.Join([]string(d), ",")
 }
