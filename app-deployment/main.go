@@ -1,10 +1,14 @@
 package main
 
 import (
+	"context"
 	"flag"
 	"fmt"
 	"path/filepath"
 
+	appsv1 "k8s.io/api/apps/v1"
+	apiv1 "k8s.io/api/core/v1"
+	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/client-go/kubernetes"
 	"k8s.io/client-go/tools/clientcmd"
 	"k8s.io/client-go/util/homedir"
@@ -33,7 +37,47 @@ func main() {
 	if err != nil {
 		panic(err)
 	}
+	namespace := "default"
+
+	deployment := &appsv1.Deployment{
+
+		ObjectMeta: metav1.ObjectMeta{
+			Name: "myDeployment",
+		},
+
+		Spec: appsv1.DeploymentSpec{
+			Replicas: int(3),
+			Selector: &metav1.LabelSelector{
+				MatchLabels: map[string]string{
+					"appname": "myapp",
+				},
+			},
+			Template: appsv1.PodTemplateSpec{
+				ObjectMeta: metav1.ObjectMeta{
+					Labels: map[string]string{
+						"appname": "myapp",
+					},
+				},
+				Spec: apiv1.PodSpec{
+					Containers: []apiv1.Container{
+						{
+							Name:  "container1",
+							Image: "nginx:latest",
+							Ports: []apiv1.ContainerPort{
+								{
+									Name:          "webContainer",
+									Protocol:      apiv1.ProtocolTCP,
+									ContainerPort: 80,
+								},
+							},
+						},
+					},
+				},
+			},
+		},
+	}
+
+	// as the second arg to Create func is "*v1.Deployment" anything which is passed to it should be an address.
+	clientset.AppsV1().Deployments(namespace).Create(context.TODO(), deployment)
 
 }
-https://github.com/PacktPublishing/Go-for-DevOps/blob/rev0/chapter/14/workloads/main.go
-https://github.com/kubernetes/client-go/blob/v0.27.2/examples/create-update-delete-deployment/main.go
