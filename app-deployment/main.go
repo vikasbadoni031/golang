@@ -23,8 +23,8 @@ func main() {
 		kubeconfig = flag.String("kubeconfig", "~/.kube/config", "absolute path to the kubeconfig file")
 
 	}
-	fmt.Println(kubeconfig)
-	fmt.Println(*kubeconfig)
+	//fmt.Println(kubeconfig)
+	//fmt.Println(*kubeconfig)
 
 	flag.Parse()
 
@@ -42,17 +42,16 @@ func main() {
 	deployment := &appsv1.Deployment{
 
 		ObjectMeta: metav1.ObjectMeta{
-			Name: "myDeployment",
+			Name: "mydeployment",
 		},
-
 		Spec: appsv1.DeploymentSpec{
-			Replicas: int(3),
+			Replicas: int32Ptr(2),
 			Selector: &metav1.LabelSelector{
 				MatchLabels: map[string]string{
 					"appname": "myapp",
 				},
 			},
-			Template: appsv1.PodTemplateSpec{
+			Template: apiv1.PodTemplateSpec{
 				ObjectMeta: metav1.ObjectMeta{
 					Labels: map[string]string{
 						"appname": "myapp",
@@ -65,7 +64,7 @@ func main() {
 							Image: "nginx:latest",
 							Ports: []apiv1.ContainerPort{
 								{
-									Name:          "webContainer",
+									Name:          "webcontainer",
 									Protocol:      apiv1.ProtocolTCP,
 									ContainerPort: 80,
 								},
@@ -78,6 +77,18 @@ func main() {
 	}
 
 	// as the second arg to Create func is "*v1.Deployment" anything which is passed to it should be an address.
-	clientset.AppsV1().Deployments(namespace).Create(context.TODO(), deployment)
+	result, err := clientset.AppsV1().Deployments(namespace).Create(context.TODO(), deployment, metav1.CreateOptions{})
+	if err != nil {
+		panic(err)
+	}
+	fmt.Println("1111")
+
+	fmt.Println(result.Size())
+
+	fmt.Println("2222")
+
+	fmt.Printf("Created deployment %q.\n", result.GetObjectMeta().GetName())
 
 }
+
+func int32Ptr(i int32) *int32 { return &i }
