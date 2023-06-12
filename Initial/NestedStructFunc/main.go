@@ -35,6 +35,12 @@ func main() {
 }
 
 func (pointerToPerson *person) updateName(newFirstName string) { //function receving a pointer arg
+	fmt.Println("base")
+	//fmt.Println(pointerToPerson)
+	//fmt.Println(*pointerToPerson)
+	//fmt.Printf("%p\n", pointerToPerson)    //printing address related to a pointer to a struct type.
+	//fmt.Printf("%p\n", *pointerToPerson)
+	fmt.Println("base1")
 	(*pointerToPerson).firstName = newFirstName
 	(*pointerToPerson).contactInfo.email = "viki.badoni"
 }

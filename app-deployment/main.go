@@ -38,14 +38,14 @@ func main() {
 		panic(err)
 	}
 	namespace := "default"
-
+	replicasCount := int32(2)
 	deployment := &appsv1.Deployment{
 
 		ObjectMeta: metav1.ObjectMeta{
 			Name: "mydeployment",
 		},
 		Spec: appsv1.DeploymentSpec{
-			Replicas: int32Ptr(2),
+			Replicas: &replicasCount, //not we are using a function here to convert int32 to an address
 			Selector: &metav1.LabelSelector{
 				MatchLabels: map[string]string{
 					"appname": "myapp",
@@ -76,18 +76,25 @@ func main() {
 		},
 	}
 
+	//fmt.Printf("%p", deployment)
+	//fmt.Println("zindagi")
+	//fmt.Printf("%p", *deployment)
 	// as the second arg to Create func is "*v1.Deployment" anything which is passed to it should be an address.
+	// can be seen using "fmt.Printf("%p", deployment)" which will print an address
 	result, err := clientset.AppsV1().Deployments(namespace).Create(context.TODO(), deployment, metav1.CreateOptions{})
+	//retured value result is an address too, look at the signature of the create func in deployment interface
 	if err != nil {
 		panic(err)
 	}
-	fmt.Println("1111")
+	fmt.Printf("%p", result)
 
+	//func (*Deployment) Size , size method takes pointer to deployment type as a receiver argument
+	//https://pkg.go.dev/k8s.io/api/apps/v1#Deployment.Size
 	fmt.Println(result.Size())
 
-	fmt.Println("2222")
-
-	fmt.Printf("Created deployment %q.\n", result.GetObjectMeta().GetName())
+	// here GetName is an embbeded method from ObjectMeta which is a embbeded struct in the deployment Type.
+	// struct deployment{ objectMeta--> func GetName() }
+	fmt.Printf("Created deployment %s.\n", result.GetName())
 
 }
 
