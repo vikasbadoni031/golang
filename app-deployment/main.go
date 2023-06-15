@@ -43,7 +43,7 @@ func getClientSet() *kubernetes.Clientset {
 }
 
 // Creates a kubernetes deployment resource
-func createWebDeployment(namespace string, replicasCount int32, clientSet *kubernetes.Clientset, deploymentName string, key string, value string) {
+func createWebDeployment(namespace string, replicasCount int32, clientSet *kubernetes.Clientset, deploymentName string, key string, value string, image string) {
 	// creating deployment struct
 	deployment := &appsv1.Deployment{
 
@@ -67,7 +67,7 @@ func createWebDeployment(namespace string, replicasCount int32, clientSet *kuber
 					Containers: []corev1.Container{
 						{
 							Name:  "container1",
-							Image: "nginx:latest",
+							Image: image,
 							Ports: []corev1.ContainerPort{
 								{
 									Name:          "webcontainer",
@@ -99,13 +99,13 @@ func checkForReadyReplicas(replicasCount int32, deploymentName string, clientSet
 			panic(err)
 		}
 		currentReadyReplicas := (*deployment).Status.ReadyReplicas
-		fmt.Println("Current Status ReadyReplicas = ", currentReadyReplicas)
+		fmt.Println("Current Status ReadyReplicas =", currentReadyReplicas)
 		if currentReadyReplicas == replicasCount {
 			break
 		}
 		time.Sleep(5 * time.Second)
 	}
-	fmt.Println("All Pods are ready")
+	fmt.Println("All Pods are Ready")
 }
 
 // creating a kubernetes service resource
@@ -180,7 +180,7 @@ func main() {
 	clientSet := getClientSet() //get authentication info via kubeconfig for the cluster
 
 	//variables
-	namespace := "default"
+	namespace := "nginx"
 
 	//labels and selector
 	key := "appname"
@@ -188,8 +188,9 @@ func main() {
 
 	deploymentName := "mydeployment"
 	replicasCount := int32(2)
+	image := "nginx:latest"
 	//Creating a deployment
-	createWebDeployment(namespace, replicasCount, clientSet, deploymentName, key, value)
+	createWebDeployment(namespace, replicasCount, clientSet, deploymentName, key, value, image)
 
 	//Wait for replicas to come online
 	checkForReadyReplicas(replicasCount, deploymentName, clientSet, namespace)
@@ -199,8 +200,8 @@ func main() {
 	//create service
 	createService(clientSet, namespace, serviceName, key, value, servicePort)
 
-	path := "/home"
-	host := "example.something.com"
+	path := "/"
+	host := "example.k8test.com"
 	//creating ingress resource
 	createIngress(clientSet, namespace, serviceName, path, host)
 }
