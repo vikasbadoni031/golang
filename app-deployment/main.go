@@ -8,7 +8,8 @@ import (
 	"time"
 
 	appsv1 "k8s.io/api/apps/v1"
-	apiv1 "k8s.io/api/core/v1"
+	corev1 "k8s.io/api/core/v1"
+	networkingv1 "k8s.io/api/networking/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/client-go/kubernetes"
 	"k8s.io/client-go/tools/clientcmd"
@@ -42,8 +43,8 @@ func getClientSet() *kubernetes.Clientset {
 	return clientSet
 }
 
-func createWebDeployment(namespace string, replicasCount int32, clientSet *kubernetes.Clientset, deploymentName string) {
-	deployment := &appsv1.Deployment{
+func createWebDeployment(namespace string, replicasCount int32, clientSet *kubernetes.Clientset, deploymentName string, key string, value string) {
+	deployment := &appsv1.Deployment{ //& bcoz u need to pass address in the next call.
 
 		ObjectMeta: metav1.ObjectMeta{
 			Name: deploymentName,
@@ -52,24 +53,24 @@ func createWebDeployment(namespace string, replicasCount int32, clientSet *kuber
 			Replicas: &replicasCount, //convert int32 to an address as thats what a function expects
 			Selector: &metav1.LabelSelector{
 				MatchLabels: map[string]string{
-					"appname": "myapp",
+					key: value,
 				},
 			},
-			Template: apiv1.PodTemplateSpec{
+			Template: corev1.PodTemplateSpec{
 				ObjectMeta: metav1.ObjectMeta{
 					Labels: map[string]string{
-						"appname": "myapp",
+						key: value,
 					},
 				},
-				Spec: apiv1.PodSpec{
-					Containers: []apiv1.Container{
+				Spec: corev1.PodSpec{
+					Containers: []corev1.Container{
 						{
 							Name:  "container1",
 							Image: "nginx:latest",
-							Ports: []apiv1.ContainerPort{
+							Ports: []corev1.ContainerPort{
 								{
 									Name:          "webcontainer",
-									Protocol:      apiv1.ProtocolTCP,
+									Protocol:      corev1.ProtocolTCP,
 									ContainerPort: 80,
 								},
 							},
@@ -108,7 +109,6 @@ func checkForReadyReplicas(replicasCount int32, deploymentName string, clientSet
 	//currentReadyReplicas := deployment.Status.ReadyReplicas // we can also do this.
 	//fmt.Println(deployment.Status.ReadyReplicas)
 
-
 	//waiting to the replicas to get ready.
 	for {
 		// we need to recrete this client for each iteration in loop else we are not able to get the current status of the replcaset.
@@ -123,6 +123,72 @@ func checkForReadyReplicas(replicasCount int32, deploymentName string, clientSet
 		}
 		time.Sleep(5 * time.Second)
 	}
+	fmt.Println("Replicas are ready")
+}
+
+func createService(clientSet *kubernetes.Clientset, namespace string, serviceName string, key string, value string, servicePort int32) {
+	service := &corev1.Service{
+		ObjectMeta: metav1.ObjectMeta{
+			Name: serviceName,
+		},
+		Spec: corev1.ServiceSpec{
+			Selector: map[string]string{
+				key: value,
+			},
+			Ports: []corev1.ServicePort{
+				{
+					Name:     "http",
+					Port:     servicePort,
+					Protocol: corev1.ProtocolTCP,
+				},
+			},
+		},
+	}
+	service, err := clientSet.CoreV1().Services(namespace).Create(context.TODO(), service, metav1.CreateOptions{})
+	if err != nil {
+		panic(err)
+	}
+	//fmt.Printf("Service Created", service.ObjectMeta.Name) //another option to get name
+	fmt.Printf("Service Created: %q\n", service.ObjectMeta.Name)
+}
+
+func createIngress(clientSet *kubernetes.Clientset, namespace string, serviceName string) {
+	prefix := networkingv1.PathTypePrefix
+	ingress := &networkingv1.Ingress{
+		ObjectMeta: metav1.ObjectMeta{
+			Name: "myingress",
+		},
+		Spec: networkingv1.IngressSpec{
+			Rules: []networkingv1.IngressRule{
+				{
+					Host: "example.something.com",
+					IngressRuleValue: networkingv1.IngressRuleValue{
+						HTTP: &networkingv1.HTTPIngressRuleValue{ //expected value is an address hence we added '&'
+							Paths: []networkingv1.HTTPIngressPath{ //wheneven there is a list, u need to add additional brackets
+								{
+									PathType: &prefix,
+									Path:     "/home",
+									Backend: networkingv1.IngressBackend{
+										Service: &networkingv1.IngressServiceBackend{
+											Name: "myservice",
+											Port: networkingv1.ServiceBackendPort{
+												Name: "http",
+											},
+										},
+									},
+								},
+							},
+						},
+					},
+				},
+			},
+		},
+	}
+	ingress, err := clientSet.NetworkingV1().Ingresses(namespace).Create(context.TODO(), ingress, metav1.CreateOptions{})
+	if err != nil {
+		panic(err)
+	}
+	fmt.Printf("Ingress Created: %q\n", ingress.GetName())
 }
 
 func main() {
@@ -130,11 +196,20 @@ func main() {
 
 	namespace := "default"
 	replicasCount := int32(2)
-	deploymentName := "mydeployment"
+	//labels and selector
+	key := "appname"
+	value := "myapp"
 
-	createWebDeployment(namespace, replicasCount, clientSet, deploymentName)
+	deploymentName := "mydeployment"
+	serviceName := "myservice"
+	servicePort := int32(80)
+
+	createWebDeployment(namespace, replicasCount, clientSet, deploymentName, key, value)
 	//fmt.Printf("%p", deployment) // it is address
 	checkForReadyReplicas(replicasCount, deploymentName, clientSet, namespace)
-	fmt.Println("Replicas are ready")
 
+	createService(clientSet, namespace, serviceName, key, value, servicePort)
+
+	//creating ingress resource
+	createIngress(clientSet, namespace, serviceName)
 }
