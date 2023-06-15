@@ -1,11 +1,13 @@
 # Golang - Build Kubernetes Application.
 
-Sample golang program using clientSet to create kubernetes resources.
-Creates Deployment, Service, Ingress.
+- Sample program using client-go to interact with the kubernetes API. 
+- Creates nginx Deployment, Service, Ingress which is accessible on the localhost.
 
 
-## Prerequesites
-1. Minikube installed.
+## Prerequesites Tools
+- Minikube
+- Docker
+
 
 ## Inputs
 Change vars to update the inpust like hostname, port, name and labels.
