@@ -25,7 +25,7 @@ Change vars to update the inpust like hostname, port, name and labels.
     ```
     go run main.go
     ```
-4. Update /etc/hosts to point host defined to localhost
+4. Update /etc/hosts to point host used -> localhost
     ```
     127.0.0.1 example.k8test.com 
     ```
