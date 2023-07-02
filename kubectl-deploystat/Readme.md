@@ -1,10 +1,10 @@
-# Golang - CLI Application
+# Golang - CLI Application to view Kubernetes Deployment Stats
 
 - Golang CLI Application to get CPU, memory stats related to deployment using Cobra package.
-- Takes deployment name as a substring input and lists all deployments with the matching string
+- Takes deployment name as a substring input and lists all deployments with the matching string.
 - Namespace(-n) as a flag input.
-- This is a kubectl plugin and can be integrated with kubectl.
-- If the deployment doesnt have resource set it will show the custom message. 
+- This is a kubectl plugin, So can be integrated with kubectl.
+- If the deployment doesn't have resources values set it will show the custom message. 
 
 
 ## Prerequesites Tools
@@ -13,9 +13,10 @@
 
 
 ## Inputs
-Deployment name to search for. Namespace to search in.
+- Deployment name to search for. 
+- Namespace to search in as a flag.
 
-## How to run locally
+## How to use
 1. Start minikube.
     ```
     minikube start
