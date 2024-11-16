@@ -1,0 +1,8 @@
+
+
+1. Using structs we can define custom types which may represents something in real life, For eg a "order" struct. and then
+using receiver methods we can define the behaviour of these structs. It is just like objects and its metod in OOPs programming.
+
+2. https://www.youtube.com/watch?v=_I82uza1DKc&list=PLXQpH_kZIxTWUe-Ee-DZEX5gfeoo4tHV6&index=19
+
+3. Use pointer in struts whenever you are updating any values and not while getting the value. https://youtu.be/_I82uza1DKc?list=PLXQpH_kZIxTWUe-Ee-DZEX5gfeoo4tHV6&t=1114
