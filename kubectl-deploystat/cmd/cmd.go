@@ -38,14 +38,15 @@ func getDeployStat(inputDeploy string, opt options) error {
 	if err != nil {
 		return err
 	}
+	fmt.Println("deploy count", len(deployments.Items))
 	for _, deployment := range deployments.Items {
 		deployName := deployment.ObjectMeta.Name
 		if !strings.Contains(deployName, inputDeploy) {
 			continue
 		}
-		if err != nil {
-			return err
-		}
+		// if err != nil {
+		// 	return err
+		// }
 		fmt.Print(deployName, "   ")
 		for _, container := range deployment.Spec.Template.Spec.Containers {
 			if len(container.Resources.Requests) == 0 {
